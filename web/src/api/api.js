@@ -1,21 +1,8 @@
-export async function sendMessage(message){
-
-  try{
-
-    const res = await fetch("http://localhost:8000/chat",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({message})
-    });
-
-    return await res.json();
-
-  }catch(err){
-
-    return {reply:"AI 伺服器尚未連接"};
-
-  }
-
+export async function sendMessage(message) {
+  // 這裡示範假資料，可改成你們的後端 API
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ reply: `AI 回覆: ${message}` });
+    }, 600);
+  });
 }

@@ -1,28 +1,18 @@
-function MessageBubble({message}){
-
+export default function MessageBubble({ message }) {
   const isUser = message.sender === "user";
-
-  return(
-
+  return (
     <div style={{
-      textAlign:isUser ? "right":"left",
-      marginBottom:"10px"
+      alignSelf: isUser ? "flex-end" : "flex-start",
+      background: isUser ? "#0078FF" : "#e5e5ea",
+      color: isUser ? "#fff" : "#000",
+      padding: "10px 15px",
+      borderRadius: "20px",
+      marginBottom: "10px",
+      maxWidth: "70%",
+      wordBreak: "break-word", // 防止超長文字
+      whiteSpace: "pre-wrap"   // ✅ 保留換行符號
     }}>
-
-      <span style={{
-        background:isUser ? "#4CAF50":"#ddd",
-        color:isUser ? "white":"black",
-        padding:"10px",
-        borderRadius:"10px",
-        display:"inline-block"
-      }}>
-        {message.text}
-      </span>
-
+      {message.text}
     </div>
-
   )
-
 }
-
-export default MessageBubble;
