@@ -3,14 +3,17 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #222;
+  background-color: #f7f7f8;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+* {
+  box-sizing: border-box;
 }
 
 a {
@@ -73,8 +76,23 @@ html, body, #root {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+
+  /* src/index.css */
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
 }
 
-* {
-  box-sizing: border-box;
+body {
+  background-color: #f7f7f8;
+  color: #222;
+}
+
+button {
+  font: inherit;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
 }

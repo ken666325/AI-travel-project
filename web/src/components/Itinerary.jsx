@@ -1,59 +1,87 @@
-import React from "react";
+function Itinerary({
+  itinerary,
+  setItinerary,
+  setSelectedPlace,
+  setSelectedDay,
+}) {
+  const moveItem = (day, index, direction) => {
+    const newList = [...itinerary[day]];
+    const newIndex = index + direction;
 
-export default function Itinerary({ itinerary, removeSpot, moveSpot }) {
+    if (newIndex < 0 || newIndex >= newList.length) return;
+
+    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
+
+    setItinerary((prev) => ({
+      ...prev,
+      [day]: newList,
+    }));
+  };
+
+  const deleteItem = (day, index) => {
+    const newList = itinerary[day].filter((_, i) => i !== index);
+
+    setItinerary((prev) => ({
+      ...prev,
+      [day]: newList,
+    }));
+  };
+
   return (
-    <div style={{ width: 240, background: "#fafafa", overflowY: "auto", padding: 10 }}>
-      <h3 style={{ textAlign: "center" }}>行程規劃</h3>
+    <div className="itinerary">
+      <h2>行程安排</h2>
 
       {Object.keys(itinerary).map((day) => (
-        <div key={day} style={{ marginBottom: 50 }}>
-          <h2>{day}</h2>
-          {itinerary[day].map((spot, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: 6,
-                marginBottom: 4,
-                
-                borderRadius: 6,
-                background: "#e0e0e0",
-              }}
-            >
-              <span>{spot}</span>
-              <div style={{ display: "flex", gap: "4px" }}>
-                {/* 上移 */}
-                <button
-                  onClick={() => moveSpot(day, i, -1)}
-                  disabled={i === 0}
-                  style={{ cursor: i === 0 ? "not-allowed" : "pointer" }}
-                >
-                  ↑
-                </button>
+        <div key={day} className="day-block">
+          <h3 className={`day-title ${day.toLowerCase()}`}>{day}</h3>
 
-                {/* 下移 */}
-                <button
-                  onClick={() => moveSpot(day, i, 1)}
-                  disabled={i === itinerary[day].length - 1}
-                  style={{ cursor: i === itinerary[day].length - 1 ? "not-allowed" : "pointer" }}
-                >
-                  ↓
-                </button>
+          {itinerary[day].length === 0 ? (
+            <p>尚未加入景點</p>
+          ) : (
+            itinerary[day].map((place, index) => (
+              <div
+                key={index}
+                className="spot-card clickable"
+                onClick={() => {
+                  setSelectedPlace(place);
+                  setSelectedDay(day);
+                }}
+              >
+                <div className="spot-name">{place.name}</div>
 
-                {/* 刪除 */}
-                <span
-                  style={{ cursor: "pointer", color: "red", fontWeight: "bold" }}
-                  onClick={() => removeSpot(day, i)}
-                >
-                  ❌
-                </span>
+                <div className="spot-actions">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      moveItem(day, index, -1);
+                    }}
+                  >
+                    ⬆️
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      moveItem(day, index, 1);
+                    }}
+                  >
+                    ⬇️
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteItem(day, index);
+                    }}
+                  >
+                    ❌
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       ))}
     </div>
   );
 }
+
+export default Itinerary;
