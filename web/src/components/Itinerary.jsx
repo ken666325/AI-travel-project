@@ -3,6 +3,8 @@ function Itinerary({
   setItinerary,
   setSelectedPlace,
   setSelectedDay,
+  activePlaceName,
+  setActivePlaceName,
 }) {
   const moveItem = (day, index, direction) => {
     const newList = [...itinerary[day]];
@@ -41,13 +43,22 @@ function Itinerary({
             itinerary[day].map((place, index) => (
               <div
                 key={index}
-                className="spot-card clickable"
+                className={`spot-card clickable ${
+                  activePlaceName === place.name ? "active-itinerary-card" : ""
+                }`}
                 onClick={() => {
                   setSelectedPlace(place);
                   setSelectedDay(day);
+                  setActivePlaceName(place.name);
                 }}
               >
-                <div className="spot-name">{place.name}</div>
+                <div className="spot-main no-image">
+                  <div className="spot-text">
+                    <div className="spot-name">{place.name}</div>
+                    <div className="spot-meta">{place.type || "景點"}</div>
+                    <div className="spot-stay">{place.stayTime || "1~2 小時"}</div>
+                  </div>
+                </div>
 
                 <div className="spot-actions">
                   <button
