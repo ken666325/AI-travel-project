@@ -1,4 +1,70 @@
+/*#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}*/
+
 /* ===== 固定淺色模式 ===== */
+/* 整個畫面撐滿 */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* PanelGroup 也要滿高 */
+[data-panel-group] {
+  height: 100%;
+}
+
+/* 每個 panel 內容 */
+[data-panel] {
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 :root {
   color-scheme: light;
   font-family: Arial, sans-serif;
@@ -27,6 +93,7 @@ body {
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
   padding: 20px;
+  height: 100%;
   overflow-y: auto;
 }
 
@@ -57,6 +124,8 @@ body {
   border: 1px solid #e5e7eb;
   min-height: 320px;
   transition: all 0.3s ease;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .chat-container.chat-shrink {
@@ -185,6 +254,7 @@ body {
   flex: 1;
   min-height: 0;
   width: 100%;
+  height: 100%;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #e5e7eb;
@@ -205,6 +275,7 @@ body {
   background: #ffffff;
   border-left: 1px solid #e5e7eb;
   padding: 20px;
+  height: 100%;
   overflow-y: auto;
 }
 
@@ -248,15 +319,15 @@ body {
 }
 
 /* ===== Day 標題顏色 ===== */
-.day-title.day1 {
+.day-title-text.day1 {
   color: #2563eb;
 }
 
-.day-title.day2 {
+.day-title-text.day2 {
   color: #dc2626;
 }
 
-.day-title.day3 {
+.day-title-text.day3 {
   color: #16a34a;
 }
 
@@ -438,4 +509,73 @@ body {
   font-size: 12px;
   line-height: 1.5;
   color: #4b5563;
+}
+
+.route-panel {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.route-summary {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.route-step {
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.leaflet-routing-container {
+  display: none !important;
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.day-title-text {
+  margin: 0;
+}
+
+.toggle-route-btn {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #e5e7eb;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toggle-route-btn:hover {
+  background: #d1d5db;
+}
+
+
+/* 左右拖曳 */
+.resize-handle {
+  width: 6px;
+  background: #e5e7eb;
+  cursor: col-resize;
+}
+
+.resize-handle:hover {
+  background: #9ca3af;
+}
+
+/* 上下拖曳 */
+.resize-handle-horizontal {
+  height: 6px;
+  background: #e5e7eb;
+  cursor: row-resize;
+}
+
+.resize-handle-horizontal:hover {
+  background: #9ca3af;
 }
