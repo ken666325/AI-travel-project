@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import API_BASE from "../api/fetchAPI";
+
 function Itinerary({
   itinerary,
   setItinerary,
@@ -5,42 +8,190 @@ function Itinerary({
   setSelectedDay,
   activePlaceName,
   setActivePlaceName,
-  routeInfo,        // ⭐新增
-  expandedDay,      // ⭐新增
-  setExpandedDay,   // ⭐新增
+  routeInfo,
+  expandedDay,
+  setExpandedDay,
+
+  moveItem,
+  deleteItem,
+
+  // ⭐ 新增
+  trips,
+  setTrips,
+  currentTripId,
+  setCurrentTripId,
+  tripTitle,
+  setTripTitle,
 }) {
-  const moveItem = (day, index, direction) => {
-    const newList = [...itinerary[day]];
-    const newIndex = index + direction;
-
-    if (newIndex < 0 || newIndex >= newList.length) return;
-
-    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
-
-    setItinerary((prev) => ({
-      ...prev,
-      [day]: newList,
-    }));
+  // ===== 新行程 =====
+  const createNewTrip = () => {
+    setItinerary({
+      Day1: [],
+      Day2: [],
+      Day3: [],
+    });
+    setCurrentTripId(null);
+    setTripTitle("我的新行程");
   };
 
-  const deleteItem = (day, index) => {
-    const newList = itinerary[day].filter((_, i) => i !== index);
+  // ===== 載入所有行程 =====
+  const loadTrips = async () => {
+    const token = localStorage.getItem("token");
 
-    setItinerary((prev) => ({
-      ...prev,
-      [day]: newList,
-    }));
+    if (!token) return;
+
+    const res = await fetch(`${API_BASE}/api/get-trips`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      setTrips(data);
+    }
   };
+
+  // ===== 載入單一行程 =====
+  const loadTripById = (trip) => {
+    setItinerary(trip.days);
+    setCurrentTripId(trip.trip_id);
+    setTripTitle(trip.title || "未命名行程");
+  };
+
+  // ===== 儲存 =====
+  const saveTrip = async () => {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API_BASE}/api/save-trip`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        trip_id: currentTripId,
+        title: tripTitle,
+        days: itinerary,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert("儲存失敗");
+      return;
+    }
+
+    if (!currentTripId) {
+      setCurrentTripId(data.trip_id);
+    }
+
+    loadTrips();
+    alert("✅ 已儲存");
+  };
+
+  // ===== 刪除 =====
+  const deleteTrip = async (id) => {
+    const token = localStorage.getItem("token");
+
+    await fetch(`${API_BASE}/api/trip/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setTrips((prev) => prev.filter((t) => t.trip_id !== id));
+
+    if (id === currentTripId) {
+      createNewTrip();
+    }
+  };
+
+  // ===== 改名 =====
+  const renameTrip = async (id) => {
+    const name = prompt("新名稱");
+    if (!name) return;
+
+    const token = localStorage.getItem("token");
+
+    await fetch(`${API_BASE}/api/trip/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title: name }),
+    });
+
+    setTrips((prev) =>
+      prev.map((t) =>
+        t.trip_id === id ? { ...t, title: name } : t
+      )
+    );
+
+    if (id === currentTripId) {
+      setTripTitle(name);
+    }
+  };
+
+  useEffect(() => {
+    loadTrips();
+  }, []);
 
   return (
     <div className="itinerary">
-      <h2>行程安排</h2>
+      {/* ⭐ 行程列表 */}
+      <div className="trip-sidebar">
+        <button onClick={createNewTrip}>➕ 新行程</button>
+
+        <h4>最近</h4>
+
+        {trips.map((trip) => (
+          <div
+            key={trip.trip_id}
+            className={`trip-item ${
+              currentTripId === trip.trip_id ? "active-trip" : ""
+            }`}
+            onClick={() => loadTripById(trip)}
+          >
+            <span className="trip-title">
+              {trip.title || "未命名行程"}
+            </span>
+
+            <div className="trip-menu">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // ⭐ 防止觸發切換
+                  renameTrip(trip.trip_id);
+                }}
+              >
+                ✏️
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // ⭐ 防止觸發切換
+                  deleteTrip(trip.trip_id);
+                }}
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <hr />
+
+      <h2>{tripTitle}</h2>
+
+      <button onClick={saveTrip}>💾 儲存</button>
 
       {Object.keys(itinerary).map((day) => (
         <div key={day} className="day-block">
-          {/* ⭐ 點擊展開導航 */}
+          {/* ===== Day Header ===== */}
           <div className={`day-header ${day.toLowerCase()}`}>
-            <h3 className={`day-title-text ${day.toLowerCase()}`}>{day}</h3>
+            <h3 className={`day-title-text ${day.toLowerCase()}`}>
+              {day}
+            </h3>
 
             <button
               className="toggle-route-btn"
@@ -52,6 +203,7 @@ function Itinerary({
             </button>
           </div>
 
+          {/* ===== 景點列表 ===== */}
           {itinerary[day].length === 0 ? (
             <p>尚未加入景點</p>
           ) : (
@@ -72,7 +224,9 @@ function Itinerary({
                 <div className="spot-main no-image">
                   <div className="spot-text">
                     <div className="spot-name">{place.name}</div>
-                    <div className="spot-meta">{place.type || "景點"}</div>
+                    <div className="spot-meta">
+                      {place.type || "景點"}
+                    </div>
                     <div className="spot-stay">
                       {place.stayTime || "1~2 小時"}
                     </div>
@@ -109,7 +263,7 @@ function Itinerary({
             ))
           )}
 
-          {/* ⭐ 導航資訊顯示 */}
+          {/* ===== 導航資訊 ===== */}
           {expandedDay === day && routeInfo?.[day] && (
             <div className="route-panel">
               <div className="route-summary">

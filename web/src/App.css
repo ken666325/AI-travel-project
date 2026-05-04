@@ -579,3 +579,114 @@ body {
 .resize-handle-horizontal:hover {
   background: #9ca3af;
 }
+
+
+/*使用者登入、註冊*/
+.auth-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f3f4f6;
+}
+
+.auth-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 320px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.auth-form button {
+  padding: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.auth-switch {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.auth-switch span {
+  color: #2563eb;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+}
+
+.info {
+  color: green;
+  font-size: 12px;
+}
+
+.trip-list {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+}
+
+.new-trip-btn {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.trip-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.trip-item:hover {
+  background: #f5f5f5;
+}
+
+.trip-item.active {
+  background: #e3f2fd;
+}
+
+.trip-menu {
+  position: relative;
+  display: none;
+}
+
+.trip-item:hover .trip-menu {
+  display: block;
+}
+
+.trip-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+}
+
+.trip-menu:hover .trip-dropdown {
+  display: block;
+}
+
+.active-trip {
+  background: #e6f0ff;
+  font-weight: bold;
+}
