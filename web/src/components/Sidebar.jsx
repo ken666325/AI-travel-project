@@ -2,30 +2,42 @@ import { useState } from "react";
 
 function Sidebar({
   places,
+  itinerary,
+  setItinerary,
   setSelectedPlace,
   setSelectedDay,
-  setItinerary,
   activePlaceName,
   setActivePlaceName,
 }) {
   const [expandedPlaceName, setExpandedPlaceName] = useState("");
 
-  const addToDay = (place, day) => {
-    setItinerary((prev) => ({
-      ...prev,
-      [day]: [...prev[day], place],
-    }));
+  // ===== 加入指定天 =====
+  const addToDay = (place, dayNumber) => {
+    setItinerary((prev) =>
+      prev.map((dayObj) =>
+        dayObj.day === dayNumber
+          ? {
+              ...dayObj,
+              spots: [...dayObj.spots, place],
+            }
+          : dayObj
+      )
+    );
 
     setSelectedPlace(place);
-    setSelectedDay(day);
+    setSelectedDay(dayNumber);
     setActivePlaceName(place.name);
   };
 
+  // ===== 展開卡片 =====
   const toggleExpand = (place) => {
     setSelectedPlace(place);
     setSelectedDay(null);
     setActivePlaceName(place.name);
-    setExpandedPlaceName(expandedPlaceName === place.name ? "" : place.name);
+
+    setExpandedPlaceName(
+      expandedPlaceName === place.name ? "" : place.name
+    );
   };
 
   return (
@@ -39,9 +51,14 @@ function Sidebar({
         return (
           <div
             key={index}
-            className={`place-row-wrapper ${isActive ? "active-place" : ""}`}
+            className={`place-row-wrapper ${
+              isActive ? "active-place" : ""
+            }`}
           >
-            <div className="place-row-main" onClick={() => toggleExpand(place)}>
+            <div
+              className="place-row-main"
+              onClick={() => toggleExpand(place)}
+            >
               <div className="place-row-text">
                 <h4>{place.name}</h4>
                 <p>{place.type || "景點"}</p>
@@ -53,6 +70,7 @@ function Sidebar({
               </div>
             </div>
 
+            {/* ===== 展開資訊 ===== */}
             {isExpanded && (
               <div className="place-detail-panel-bottom">
                 <img
@@ -67,18 +85,51 @@ function Sidebar({
 
                 <div className="place-detail-body">
                   <h4>{place.name}</h4>
-                  <p><strong>地址：</strong>{place.address || "尚未提供"}</p>
-                  <p><strong>類型：</strong>{place.type || "景點"}</p>
-                  <p><strong>建議停留：</strong>{place.stayTime || "1~2 小時"}</p>
+
+                  <p>
+                    <strong>地址：</strong>
+                    {place.address || "尚未提供"}
+                  </p>
+
+                  <p>
+                    <strong>類型：</strong>
+                    {place.type || "景點"}
+                  </p>
+
+                  <p>
+                    <strong>建議停留：</strong>
+                    {place.stayTime || "1~2 小時"}
+                  </p>
+
                   <p className="place-detail-desc">
-                    {place.description || "這是值得安排進行程的推薦景點。"}
+                    {place.description ||
+                      "這是值得安排進行程的推薦景點。"}
                   </p>
                 </div>
 
+                {/* ===== 下拉加入天數 ===== */}
                 <div className="place-action-row">
-                  <button onClick={() => addToDay(place, "Day1")}>加入 Day1</button>
-                  <button onClick={() => addToDay(place, "Day2")}>加入 Day2</button>
-                  <button onClick={() => addToDay(place, "Day3")}>加入 Day3</button>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      if (!e.target.value) return;
+
+                      addToDay(place, Number(e.target.value));
+
+                      e.target.value = "";
+                    }}
+                  >
+                    <option value="">加入行程...</option>
+
+                    {itinerary.map((dayObj) => (
+                      <option
+                        key={dayObj.day}
+                        value={dayObj.day}
+                      >
+                        Day {dayObj.day}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             )}

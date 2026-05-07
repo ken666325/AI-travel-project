@@ -6,6 +6,7 @@ import {
   Popup,
   useMap,
 } from "react-leaflet";
+
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine";
@@ -16,13 +17,17 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 delete L.Icon.Default.prototype._getIconUrl;
+
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
 });
 
-/* 飛到景點 */
+/* =========================
+   飛到景點
+========================= */
+
 function FlyToPlace({ selectedPlace, markerRefs }) {
   const map = useMap();
 
@@ -34,6 +39,7 @@ function FlyToPlace({ selectedPlace, markerRefs }) {
     });
 
     const marker = markerRefs.current[selectedPlace.name];
+
     if (marker) {
       setTimeout(() => {
         marker.openPopup();
@@ -44,23 +50,41 @@ function FlyToPlace({ selectedPlace, markerRefs }) {
   return null;
 }
 
-/* ⭐ Routing 元件（核心） */
-function Routing({ spots, places, color, setRouteInfo, day }) {
+/* =========================
+   路線
+========================= */
+
+function Routing({
+  spots,
+  places,
+  color,
+  setRouteInfo,
+  day,
+}) {
   const map = useMap();
   const routingRef = useRef(null);
 
   useEffect(() => {
-    if (!map || !spots || spots.length < 2) return;
+    if (!map) return;
 
+    /* 清除舊路線 */
     if (routingRef.current) {
       map.removeControl(routingRef.current);
     }
 
+    if (!spots || spots.length < 2) return;
+
     const waypoints = spots
-      .map((item) => {
-        if (item.lat && item.lng) return L.latLng(item.lat, item.lng);
-        const p = places.find((p) => p.name === item);
-        return p ? L.latLng(p.lat, p.lng) : null;
+      .map((spot) => {
+        if (spot.lat && spot.lng) {
+          return L.latLng(spot.lat, spot.lng);
+        }
+
+        const p = places.find((x) => x.name === spot.name);
+
+        return p
+          ? L.latLng(p.lat, p.lng)
+          : null;
       })
       .filter(Boolean);
 
@@ -68,12 +92,21 @@ function Routing({ spots, places, color, setRouteInfo, day }) {
 
     const routing = L.Routing.control({
       waypoints,
+
       router: L.Routing.osrmv1({
-        serviceUrl: "https://router.project-osrm.org/route/v1",
+        serviceUrl:
+          "https://router.project-osrm.org/route/v1",
       }),
+
       lineOptions: {
-        styles: [{ color, weight: 5 }],
+        styles: [
+          {
+            color,
+            weight: 5,
+          },
+        ],
       },
+
       addWaypoints: false,
       draggableWaypoints: false,
       fitSelectedRoutes: false,
@@ -81,6 +114,7 @@ function Routing({ spots, places, color, setRouteInfo, day }) {
       createMarker: () => null,
     }).addTo(map);
 
+    /* ⭐ 導航資訊 */
     routing.on("routesfound", function (e) {
       const route = e.routes[0];
 
@@ -96,7 +130,10 @@ function Routing({ spots, places, color, setRouteInfo, day }) {
 
       setRouteInfo((prev) => ({
         ...prev,
-        [day]: { summary, steps },
+        [day]: {
+          summary,
+          steps,
+        },
       }));
     });
 
@@ -107,21 +144,42 @@ function Routing({ spots, places, color, setRouteInfo, day }) {
         map.removeControl(routingRef.current);
       }
     };
-  }, [map, spots, places, color, setRouteInfo, day]);
+  }, [spots, map]);
 
   return null;
 }
+
+/* =========================
+   顏色
+========================= */
+
+const routeColors = [
+  "#2563eb",
+  "#dc2626",
+  "#16a34a",
+  "#ca8a04",
+  "#9333ea",
+  "#db2777",
+  "#0891b2",
+  "#ea580c",
+  "#4f46e5",
+  "#65a30d",
+];
+
+/* =========================
+   Map
+========================= */
 
 function Map({
   places,
   itinerary,
   selectedPlace,
-  selectedDay,
   activePlaceName,
   setActivePlaceName,
-  setRouteInfo, // ⭐新增
+  setRouteInfo,
 }) {
   const markerRefs = useRef({});
+
   const defaultCenter = [25.0339, 121.5645];
 
   return (
@@ -137,30 +195,22 @@ function Map({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <FlyToPlace selectedPlace={selectedPlace} markerRefs={markerRefs} />
+        <FlyToPlace
+          selectedPlace={selectedPlace}
+          markerRefs={markerRefs}
+        />
 
-        {/* ⭐ 真實導航 */}
-        <Routing
-          spots={itinerary?.Day1 || []}
-          places={places}
-          color="#2563eb"
-          day="Day1"
-          setRouteInfo={setRouteInfo}
-        />
-        <Routing
-          spots={itinerary?.Day2 || []}
-          places={places}
-          color="#dc2626"
-          day="Day2"
-          setRouteInfo={setRouteInfo}
-        />
-        <Routing
-          spots={itinerary?.Day3 || []}
-          places={places}
-          color="#16a34a"
-          day="Day3"
-          setRouteInfo={setRouteInfo}
-        />
+        {/* ⭐ 動態路線 */}
+        {itinerary.map((dayData, index) => (
+          <Routing
+            key={dayData.day}
+            spots={dayData.spots}
+            places={places}
+            color={routeColors[index % routeColors.length]}
+            day={`Day${dayData.day}`}
+            setRouteInfo={setRouteInfo}
+          />
+        ))}
 
         {/* Marker */}
         {places.map((place, index) => (
@@ -189,12 +239,28 @@ function Map({
                       "https://via.placeholder.com/220x110?text=Travel+Place";
                   }}
                 />
+
                 <div className="map-popup-body">
                   <h4>{place.name}</h4>
-                  <p><strong>類型：</strong>{place.type || "景點"}</p>
-                  <p><strong>停留：</strong>{place.stayTime || "1~2 小時"}</p>
-                  <p><strong>地址：</strong>{place.address || "尚未提供"}</p>
-                  <p>{place.description || "推薦旅遊景點"}</p>
+
+                  <p>
+                    <strong>類型：</strong>
+                    {place.type || "景點"}
+                  </p>
+
+                  <p>
+                    <strong>停留：</strong>
+                    {place.stayTime || "1~2 小時"}
+                  </p>
+
+                  <p>
+                    <strong>地址：</strong>
+                    {place.address || "尚未提供"}
+                  </p>
+
+                  <p>
+                    {place.description || "推薦旅遊景點"}
+                  </p>
                 </div>
               </div>
             </Popup>

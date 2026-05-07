@@ -14,6 +14,7 @@ import {
   PanelResizeHandle,
 } from "react-resizable-panels";
 
+
 /* decode JWT */
 function parseToken(token) {
   try {
@@ -71,11 +72,11 @@ function App() {
     { role: "assistant", content: "你好！我可以幫你規劃旅遊行程～" },
   ]);
 
-  const [itinerary, setItinerary] = useState({
-    Day1: [],
-    Day2: [],
-    Day3: [],
-  });
+  const [itinerary, setItinerary] = useState([
+    { day: 1, spots: [] },
+    { day: 2, spots: [] },
+    { day: 3, spots: [] },
+  ]);
 
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -129,32 +130,27 @@ function App() {
   // =========================================
 
   // ⬆️⬇️ 移動景點
-  const moveItem = (day, index, direction) => {
+  const moveItem = (dayIndex, index, direction) => {
     setItinerary((prev) => {
-      const list = [...prev[day]];
-      const newIndex = index + direction;
+      const newDays = [...prev];
+      const list = [...newDays[dayIndex].spots];
 
+      const newIndex = index + direction;
       if (newIndex < 0 || newIndex >= list.length) return prev;
 
       [list[index], list[newIndex]] = [list[newIndex], list[index]];
+      newDays[dayIndex].spots = list;
 
-      return {
-        ...prev,
-        [day]: list,
-      };
+      return newDays;
     });
   };
 
   // ❌ 刪除景點
-  const deleteItem = (day, index) => {
+  const deleteItem = (dayIndex, index) => {
     setItinerary((prev) => {
-      const list = [...prev[day]];
-      list.splice(index, 1);
-
-      return {
-        ...prev,
-        [day]: list,
-      };
+      const newDays = [...prev];
+      newDays[dayIndex].spots.splice(index, 1);
+      return newDays;
     });
   };
 
@@ -175,9 +171,10 @@ function App() {
           <Panel defaultSize={20} minSize={10}>
             <Sidebar
               places={places}
+              itinerary={itinerary}
+              setItinerary={setItinerary}
               setSelectedPlace={setSelectedPlace}
               setSelectedDay={setSelectedDay}
-              setItinerary={setItinerary}
               activePlaceName={activePlaceName}
               setActivePlaceName={setActivePlaceName}
             />

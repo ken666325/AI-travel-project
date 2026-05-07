@@ -690,3 +690,42 @@ body {
   background: #e6f0ff;
   font-weight: bold;
 }
+
+.spot-card {
+  cursor: grab;
+  transition: 0.2s;
+}
+
+.spot-card:active {
+  cursor: grabbing;
+  transform: scale(1.03);
+}
+
+.day-block {
+  min-height: 50px;
+}
+
+.spot-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.delete-btn:hover {
+  color: red;
+}
+
+.delete-btn {
+  opacity: 0;
+}
+
+.spot-card:hover .delete-btn {
+  opacity: 1;
+}
