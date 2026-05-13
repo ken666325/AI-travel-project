@@ -28,6 +28,11 @@ function Itinerary({
 
   tripTitle,
   setTripTitle,
+
+  setShowMap,
+
+  places,
+  setPlaces,
 }) {
   /* ==================================================
       ⭐ 拖曳排序（支援跨天）
@@ -129,6 +134,14 @@ function Itinerary({
         day: 1,
         spots: [],
       },
+      {
+        day: 2,
+        spots: [],
+      },
+      {
+        day: 3,
+        spots: [],
+      },
     ]);
 
     setCurrentTripId(null);
@@ -162,7 +175,7 @@ function Itinerary({
   /* ==================================================
       ⭐ 載入單一行程
   ================================================== */
-  const loadTripById = (trip) => {
+  const loadTripById = async (trip) => {
     setItinerary(trip.days || []);
 
     setCurrentTripId(trip.trip_id);
@@ -170,6 +183,8 @@ function Itinerary({
     setTripTitle(
       trip.title || "未命名行程"
     );
+
+    await fetchTripPlaces(trip.trip_id);
   };
 
   /* ==================================================
@@ -279,6 +294,29 @@ function Itinerary({
     loadTrips();
   }, []);
 
+  //載入Sidebar景點
+  const fetchTripPlaces = async (tripId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `${API_BASE}/api/trip-places/${tripId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      setPlaces(data);
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   /* ==================================================
       ⭐ 顏色
   ================================================== */
@@ -359,6 +397,10 @@ function Itinerary({
           <button onClick={addNewDay}>
             ➕ 增加天數
           </button>
+
+          <button onClick={() => setShowMap(true)}>
+  🗺 查看地圖
+</button>
         </div>
       </div>
 
@@ -389,14 +431,14 @@ function Itinerary({
                   borderLeft: `6px solid ${dayColor}`,
                 }}
               >
-                <h3
+                <h2
                   className="day-title-text"
                   style={{
                     color: dayColor,
                   }}
                 >
                   Day {dayObj.day}
-                </h3>
+                </h2>
 
                 <button
                   className="toggle-route-btn"
@@ -489,6 +531,11 @@ function Itinerary({
                                     {place.stayTime ||
                                       "1~2 小時"}
                                   </div>
+
+                                  <div>
+                                    <strong>營業時間：</strong>
+                                    {place.acitiveTime  || "08:00~17:00"}
+                                  </div>
                                 </div>
 
                                 {/* ⭐ 刪除 */}
@@ -558,7 +605,7 @@ function Itinerary({
                       {routeInfo[
                         `Day${dayObj.day}`
                       ].steps
-                        .slice(0, 6)
+                        //.slice(0, 6)
                         .map((step, i) => (
                           <div
                             key={i}

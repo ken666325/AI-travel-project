@@ -107,6 +107,19 @@ CREATE TABLE IF NOT EXISTS AI_Recommendations (  -- 如果不存在才建立
     FOREIGN KEY(trip_id) REFERENCES Trips(trip_id)   -- 關聯行程
 );
 
+CREATE TABLE IF NOT EXISTS Trip_Places (
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    trip_id INTEGER,
+    spot_id INTEGER,
+
+    added_at TEXT,
+
+    FOREIGN KEY(trip_id) REFERENCES Trips(trip_id),
+    FOREIGN KEY(spot_id) REFERENCES Spots(spot_id)
+);
+
 INSERT INTO Spots (name, location, lat, lng, category, rating, cost, open_time, close_time, image)
 VALUES 
 ('台北101', '台北市信義區信義路五段7號', 25.033964, 121.564468, '景點 / 商場', NULL, NULL, NULL, NULL,
@@ -120,3 +133,5 @@ VALUES
 
 ('中正紀念堂', '台北市中正區中山南路21號', 25.034535, 121.521275, '歷史景點', NULL, NULL, NULL, NULL,
  'https://upload.wikimedia.org/wikipedia/commons/0/0d/2022%E5%B9%B4%E7%9A%84%E4%B8%AD%E6%AD%A3%E7%B4%80%E5%BF%B5%E5%A0%82.jpg?q=80&w=1200&auto=format&fit=crop');
+
+ 

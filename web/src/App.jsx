@@ -39,6 +39,7 @@ function App() {
       lng: 121.5645,
       type: "景點 / 商場",
       stayTime: "2 小時",
+      activeTime: "08:00~17:00",
       address: "台北市信義區市府路45號",
       description: "台北最具代表性的地標之一",
       image:
@@ -50,6 +51,7 @@ function App() {
       lng: 121.57,
       type: "登山 / 夜景",
       stayTime: "1.5 小時",
+      activeTime: "08:00~17:00",
       address: "台北市信義區信義路五段150巷",
       description: "熱門夜景景點",
       image:
@@ -61,6 +63,7 @@ function App() {
       lng: 121.5079,
       type: "商圈 / 美食",
       stayTime: "2~3 小時",
+      activeTime: "08:00~17:00",
       address: "台北市萬華區西門町",
       description: "知名商圈",
       image:
@@ -93,6 +96,8 @@ function App() {
   const [trips, setTrips] = useState([]);
   const [currentTripId, setCurrentTripId] = useState(null);
   const [tripTitle, setTripTitle] = useState("我的旅遊行程");
+
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("token");
@@ -168,9 +173,11 @@ function App() {
         />
       ) : (
         <PanelGroup direction="horizontal">
-          <Panel defaultSize={20} minSize={10}>
+          <Panel defaultSize={10} minSize={10}>
             <Sidebar
               places={places}
+              setPlaces={setPlaces}
+              currentTripId={currentTripId}
               itinerary={itinerary}
               setItinerary={setItinerary}
               setSelectedPlace={setSelectedPlace}
@@ -184,7 +191,9 @@ function App() {
 
           <Panel defaultSize={50} minSize={30}>
             <PanelGroup direction="vertical">
-              <Panel defaultSize={40} minSize={20}>
+
+              {/* Chat */}
+              <Panel defaultSize={35} minSize={20}>
                 <Chat
                   messages={messages}
                   setMessages={setMessages}
@@ -195,50 +204,73 @@ function App() {
 
               <PanelResizeHandle className="resize-handle-horizontal" />
 
-              <Panel defaultSize={60} minSize={30}>
-                <div className="panel-content">
-                  <Map
-                    places={places}
+              {/* Itinerary */}
+              <Panel defaultSize={65} minSize={30}>
+                <div className="itinerary-wrapper">
+                  <Itinerary
                     itinerary={itinerary}
-                    selectedPlace={selectedPlace}
-                    selectedDay={selectedDay}
+                    setItinerary={setItinerary}
+                    setSelectedPlace={setSelectedPlace}
+                    setSelectedDay={setSelectedDay}
                     activePlaceName={activePlaceName}
                     setActivePlaceName={setActivePlaceName}
-                    setRouteInfo={setRouteInfo}
+                    routeInfo={routeInfo}
+                    expandedDay={expandedDay}
+                    setExpandedDay={setExpandedDay}
+                    user={user}
+                    moveItem={moveItem}
+                    deleteItem={deleteItem}
+                    trips={trips}
+                    setTrips={setTrips}
+                    currentTripId={currentTripId}
+                    setCurrentTripId={setCurrentTripId}
+                    tripTitle={tripTitle}
+                    setTripTitle={setTripTitle}
+                    setShowMap={setShowMap}
+                    places={places}
+                    setPlaces={setPlaces}
                   />
                 </div>
               </Panel>
+
             </PanelGroup>
           </Panel>
 
-          <PanelResizeHandle className="resize-handle" />
-
-          {/* ⭐ 這裡補上 props */}
-          <Panel defaultSize={30} minSize={10}>
-            <Itinerary
-              itinerary={itinerary}
-              setItinerary={setItinerary}
-              setSelectedPlace={setSelectedPlace}
-              setSelectedDay={setSelectedDay}
-              activePlaceName={activePlaceName}
-              setActivePlaceName={setActivePlaceName}
-              routeInfo={routeInfo}
-              expandedDay={expandedDay}
-              setExpandedDay={setExpandedDay}
-              user={user}
-              moveItem={moveItem}
-              deleteItem={deleteItem}
-              trips={trips}
-              setTrips={setTrips}
-              currentTripId={currentTripId}
-              setCurrentTripId={setCurrentTripId}
-              tripTitle={tripTitle}
-              setTripTitle={setTripTitle}
-            />
-          </Panel>
         </PanelGroup>
+        
       )}
+      
+      <div
+          className={`map-modal-overlay ${
+            showMap ? "show-map" : "hide-map"
+          }`}
+        >
+          <div className="map-modal">
+
+            <div className="map-modal-header">
+              <span>🗺 行程地圖</span>
+
+              <button onClick={() => setShowMap(false)}>
+                ✕
+              </button>
+            </div>
+
+            <div className="map-modal-content">
+              <Map
+                places={places}
+                itinerary={itinerary}
+                selectedPlace={selectedPlace}
+                selectedDay={selectedDay}
+                activePlaceName={activePlaceName}
+                setActivePlaceName={setActivePlaceName}
+                setRouteInfo={setRouteInfo}
+              />
+            </div>
+
+          </div>
+        </div>
     </>
+    
   );
 }
 
