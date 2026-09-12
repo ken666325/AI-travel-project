@@ -1,83 +1,83 @@
-// src/components/Chat.jsx
-import React, { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { sendMessage } from "../api/api";
 
-export default function Chat({ messages, setMessages }) {
+function Chat({ setPlaces, setItinerary }) {
+  const [messages, setMessages] = useState([
+    {
+      sender: "ai",
+      text: "你好！請輸入你想去哪裡旅遊，我可以幫你推薦景點與安排行程。",
+    },
+  ]);
+
   const [input, setInput] = useState("");
-  const chatEndRef = useRef(null);
 
   const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage = { sender: "user", text: input };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
 
-    const response = await sendMessage(input);
-    const aiMessage = { sender: "ai", text: response.reply || "AI 回覆" };
-    setMessages(prev => [...prev, aiMessage]);
+    try {
+      const response = await sendMessage(input);
+
+      const aiMessage = {
+        sender: "ai",
+        text: response.reply || "這是 AI 回覆",
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+
+      // 更新推薦景點（左側 + 地圖）
+      if (response.places) {
+        setPlaces(response.places);
+      }
+
+      // 更新行程
+      if (response.itinerary) {
+        setItinerary(response.itinerary);
+      }
+    } catch (error) {
+      console.error("發送訊息失敗:", error);
+
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "抱歉，目前無法取得回應。" },
+      ]);
+    }
 
     setInput("");
   };
 
-  // 滾動到底部
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   return (
-    <div style={{ width:700, flex: 1, display: "flex", flexDirection: "column", background: "#f5f5f5" }}>
-      <div style={{ padding: 10, borderBottom: "1px solid #ccc" }}>AI 旅遊助理</div>
-      <div style={{ flex: 1, padding: 10, overflowY: "auto" }}>
-        {messages.map((msg, i) => (
+    <div className="chat-container">
+      <div className="chat-messages">
+        {messages.map((msg, index) => (
           <div
-            key={i}
-            style={{
-              display: "flex",
-              justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
-              marginBottom: 10
-            }}
+            key={index}
+            className={`message-row ${msg.sender === "user" ? "user" : "ai"}`}
           >
-            <div
-              style={{
-                maxWidth: "60%",
-                padding: "10px 15px",
-                borderRadius: 20,
-                background: msg.sender === "user" ? "#0078FF" : "#e0e0e0",
-                color: msg.sender === "user" ? "#fff" : "#000",
-                whiteSpace: "pre-wrap" // 讓換行有效
-              }}
-            >
-              {msg.text}
-            </div>
+            <div className={`message-bubble ${msg.sender}`}>{msg.text}</div>
           </div>
         ))}
-        <div ref={chatEndRef} />
       </div>
-      <div style={{ display: "flex", padding: 10 }}>
+
+      <div className="chat-input-area">
         <textarea
-          style={{
-            flex: 1,
-            padding: "12px 15px",
-            borderRadius: 25,
-            border: "1px solid #ccc",
-            outline: "none",
-            fontSize: 16,
-            resize: "none",
-            height: 50,
-            overflowY: "auto"
-          }}
           value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="問我旅遊問題..."
-          onKeyDown={e => {
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="輸入你的旅遊需求..."
+          rows={2}
+          onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               handleSend();
             }
           }}
         />
-        <button onClick={handleSend} style={{ marginLeft: 10 }}>送出</button>
+        <button onClick={handleSend}>送出</button>
       </div>
     </div>
   );
 }
+
+export default Chat;

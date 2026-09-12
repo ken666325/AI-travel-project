@@ -1,4 +1,4 @@
-#root {
+/*#root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +39,926 @@
 
 .read-the-docs {
   color: #888;
+}*/
+
+/* ===== 固定淺色模式 ===== */
+/* 整個畫面撐滿 */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* PanelGroup 也要滿高 */
+[data-panel-group] {
+  height: 100%;
+}
+
+/* 每個 panel 內容 */
+[data-panel] {
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:root {
+  color-scheme: light;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ===== 整體版面 ===== */
+.app-container {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== 左側 Sidebar ===== */
+.sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+/* ===== 中間主區 ===== */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+  overflow-y: auto;
+  padding: 16px;
+  gap: 16px;
+}
+
+/* ===== Chat 區 ===== */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+  background: white;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  min-height: 320px;
+  transition: all 0.3s ease;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.chat-container.chat-shrink {
+  flex: 0.55;
+  min-height: 220px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.message-row {
+  display: flex;
+  margin-bottom: 14px;
+}
+
+.message-row.user {
+  justify-content: flex-end;
+}
+
+.message-row.ai {
+  justify-content: flex-start;
+}
+
+.message-bubble {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.message-bubble.user {
+  background: #2563eb;
+  color: white;
+}
+
+.message-bubble.ai {
+  background: white;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.chat-input-area textarea {
+  flex: 1;
+  resize: none;
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 15px;
+  outline: none;
+  background: white;
+  color: #111827;
+}
+
+.chat-input-area button {
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 14px;
+  padding: 0 18px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.chat-input-area button:hover {
+  background: #1d4ed8;
+}
+
+/* ===== 地圖區（整合 A + B） ===== */
+.map-section {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  min-height: 360px;
+  height: 420px;
+  transition: all 0.35s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-section.expanded {
+  height: 720px;
+  min-height: 720px;
+}
+
+.map-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.map-panel-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.map-expand-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 14px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.map-expand-btn:hover {
+  background: #1d4ed8;
+}
+
+/* ===== 地圖本體高度（整合 B） ===== */
+.map-wrapper {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: white;
+}
+
+.leaflet-map,
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  z-index: 1;
+  border-radius: 16px;
+}
+
+/* ===== 右側行程區 ===== */
+.itinerary {
+  background: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.itinerary h2 {
+  margin-top: 0;
+}
+
+.day-block {
+  margin-bottom: 24px;
+}
+
+.day-block h3 {
+  margin-bottom: 10px;
+}
+
+.spot-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.spot-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.spot-actions button {
+  border: none;
+  background: #e5e7eb;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #111827;
+}
+
+.spot-actions button:hover {
+  background: #d1d5db;
+}
+
+/* ===== 行程卡片可點擊效果 ===== */
+.clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.spot-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* =========================
+   Sidebar 景點卡片（整合 C）
+========================= */
+.place-row-wrapper {
+  background: #ffffff;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.place-row-wrapper:hover {
+  transform: translateY(-2px);
+}
+
+.place-row-main {
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.place-row-text h4 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  color: #111827;
+}
+
+.place-row-text p {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.place-row-text span {
+  font-size: 13px;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.place-expand-indicator {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.active-place {
+  border: 2px solid #2563eb;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.15);
+}
+
+/* =========================
+   下方展開資訊面板
+========================= */
+.place-detail-panel-bottom {
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 14px 16px 16px;
+  animation: slideDownDetail 0.25s ease;
+}
+
+@keyframes slideDownDetail {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.place-detail-image {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.place-detail-body h4 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.place-detail-body p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.place-detail-desc {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* =========================
+   Sidebar 按鈕列
+========================= */
+.place-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.place-action-row button {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.place-action-row button:hover {
+  background: #e5e7eb;
+}
+
+/* =========================
+   地圖 Popup（整合 D）
+========================= */
+.map-popup-card {
+  width: 220px;
+  max-width: 220px;
+}
+
+.map-popup-image {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.map-popup-body h4 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  color: #111827;
+}
+
+.map-popup-body p {
+  margin: 4px 0;
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.map-desc {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.route-panel {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.route-summary {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.route-step {
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.leaflet-routing-container {
+  display: none !important;
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.day-title-text {
+  margin: 0;
+}
+
+.toggle-route-btn {
+  font-size: 18px;
+  padding: 4px 8px;
+  background: #e5e7eb;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toggle-route-btn:hover {
+  background: #d1d5db;
+}
+
+
+/* 左右拖曳 */
+.resize-handle {
+  width: 6px;
+  background: #e5e7eb;
+  cursor: col-resize;
+}
+
+.resize-handle:hover {
+  background: #9ca3af;
+}
+
+/* 上下拖曳 */
+.resize-handle-horizontal {
+  height: 6px;
+  background: #e5e7eb;
+  cursor: row-resize;
+}
+
+.resize-handle-horizontal:hover {
+  background: #9ca3af;
+}
+
+
+/*使用者登入、註冊*/
+.auth-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f3f4f6;
+}
+
+.auth-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 320px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.auth-form button {
+  padding: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.auth-switch {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.auth-switch span {
+  color: #2563eb;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+}
+
+.info {
+  color: green;
+  font-size: 12px;
+}
+
+.trip-list {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+}
+
+.new-trip-btn {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.trip-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.trip-item:hover {
+  background: #f5f5f5;
+}
+
+.trip-item.active {
+  background: #e3f2fd;
+}
+
+.trip-menu {
+  position: relative;
+  display: none;
+}
+
+.trip-item:hover .trip-menu {
+  display: block;
+}
+
+.trip-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+}
+
+.trip-menu:hover .trip-dropdown {
+  display: block;
+}
+
+.active-trip {
+  background: #e6f0ff;
+  font-weight: bold;
+}
+
+.spot-card {
+  cursor: grab;
+  transition: 0.2s;
+}
+
+.spot-card:active {
+  cursor: grabbing;
+  transform: scale(1.03);
+}
+
+.day-block {
+  min-height: 50px;
+}
+
+.spot-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.delete-btn:hover {
+  color: red;
+}
+
+.delete-btn {
+  opacity: 0;
+}
+
+.spot-card:hover .delete-btn {
+  opacity: 1;
+}
+
+.itinerary-wrapper {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.chat-box {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.map-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.map-modal {
+  width: 80%;
+  height: 80%;
+  background: white;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.map-modal-content {
+  flex: 1;   /* ⭐ 最重要 */
+  height: 100%;
+}
+
+/*Sidebar搜尋區*/
+/* ===== 搜尋 ===== */
+.sidebar-search-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.sidebar-search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 14px;
+}
+
+.sidebar-search-input:focus {
+  border-color: #2563eb;
+}
+
+/* ===== 搜尋 input wrapper ===== */
+.search-input-wrapper {
+  position: relative;
+}
+
+/* ===== 清除按鈕 ===== */
+.clear-search-btn {
+  position: absolute;
+
+  right: 10px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  color: #888;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: 50%;
+
+  transition: 0.2s;
+}
+
+.clear-search-btn:hover {
+  background: #f3f4f6;
+  color: #111;
+}
+
+/* ===== Dropdown ===== */
+
+.search-dropdown {
+  position: absolute;
+  top: 48px;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+  z-index: 999;
+}
+
+/* ===== 搜尋結果 ===== */
+
+.search-dropdown-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.search-dropdown-item:hover {
+  background: #f3f4f6;
+}
+
+.active-search-item {
+  background: #e5e7eb;
+}
+
+.search-dropdown-item img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.search-dropdown-item h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.search-dropdown-item p {
+  margin-top: 4px;
+  font-size: 12px;
+  color: gray;
+}
+
+/* ===== Loading ===== */
+
+.search-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px;
+  font-size: 14px;
+  color: #666;
+}
+
+.search-spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #ddd;
+  border-top: 3px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== 無結果 ===== */
+
+.no-search-result {
+  padding: 18px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+
+.place-row-main-wrapper {
+  position: relative;
+}
+
+.delete-sidebar-place-btn {
+  position: absolute;
+
+  top: 10px;
+  right: 10px;
+
+  border: none;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  background: #ef4444;
+  color: white;
+
+  font-size: 12px;
+
+  opacity: 0;
+
+  transition: 0.2s;
+}
+
+.place-row-wrapper:hover
+.delete-sidebar-place-btn {
+  opacity: 1;
+}
+
+.delete-sidebar-place-btn:hover {
+  transform: scale(1.1);
+}
+
+/*地圖視窗顯示隱藏*/
+.hide-map {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.show-map {
+  opacity: 1;
+}
+
+/*登入註冊改進*/
+.password-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-box input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  user-select: none;
 }
