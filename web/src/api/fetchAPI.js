@@ -5,6 +5,6 @@ const isLocal =
 const API_BASE =
   window.location.hostname === "localhost"
     ? "http://localhost:5000"
-    : "https://potential-space-spork-wrwvq74x64r63v4q-5000.app.github.dev";
+    : "https://orange-sniffle-wrwvq74x6q76cvv5v-5000.app.github.dev";
 
 export default API_BASE;

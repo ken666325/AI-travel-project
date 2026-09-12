@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS Spots (
     open_time TEXT,                             -- 開放時間（例如 09:00）
     close_time TEXT,                            -- 關閉時間（例如 22:00）
 
-    image TEXT                                  -- 🆕 圖片URL（前端顯示用）
+    image TEXT,                                 -- 🆕 圖片URL（前端顯示用）
+    description TEXT
 );
 
 
@@ -58,12 +59,23 @@ CREATE TABLE IF NOT EXISTS Itineraries (  -- 如果不存在才建立
 -- 行程與景點（多對多關係表）
 CREATE TABLE IF NOT EXISTS Itinerary_Spots (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+
     itinerary_id INTEGER,
     spot_id INTEGER,
-    visit_order INTEGER,   -- 🔥 就是這個！！
+
+    visit_order INTEGER,
+
+    role TEXT,
+    start_time TEXT,
+    end_time TEXT,
+
     stay_time INTEGER,
-    FOREIGN KEY(itinerary_id) REFERENCES Itineraries(itinerary_id),
-    FOREIGN KEY(spot_id) REFERENCES Spots(spot_id)
+
+    FOREIGN KEY(itinerary_id)
+        REFERENCES Itineraries(itinerary_id),
+
+    FOREIGN KEY(spot_id)
+        REFERENCES Spots(spot_id)
 );
 
 
