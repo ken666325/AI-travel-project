@@ -52,9 +52,9 @@ function Sidebar({
     fetchSearchResults(debouncedKeyword);
   }, [debouncedKeyword]);
 
+  // ===== 點擊搜尋框外 =====
   useEffect(() => {
     const handleClickOutside = (e) => {
-
       if (
         searchRef.current &&
         !searchRef.current.contains(e.target)
@@ -74,7 +74,6 @@ function Sidebar({
         handleClickOutside
       );
     };
-
   }, []);
 
   // ===== API 搜尋 =====
@@ -83,14 +82,15 @@ function Sidebar({
       setLoading(true);
 
       const res = await fetch(
-        `${API_BASE}/api/search-spots?q=${keyword}`
+        `${API_BASE}/api/search-spots?q=${encodeURIComponent(
+          keyword
+        )}`
       );
 
       const data = await res.json();
 
       setSearchResults(data);
       setShowDropdown(true);
-
       setSelectedIndex(-1);
     } catch (err) {
       console.error(err);
@@ -110,6 +110,7 @@ function Sidebar({
     }
   };
 
+  // ===== 清除搜尋 =====
   const clearSearch = () => {
     setSearchKeyword("");
     setSearchResults([]);
@@ -117,7 +118,75 @@ function Sidebar({
     setSelectedIndex(-1);
   };
 
-  // ===== 點擊搜尋結果 =====
+  // =========================================================
+  // 建立新的 itinerary item
+  // =========================================================
+  const createItineraryItem = (place) => {
+    return {
+      // ===== item identity =====
+      id: `item-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`,
+
+      itemType: "place",
+
+      // spot / restaurant / hotel
+      // 從 Sidebar 加入時預設都是景點
+      role: "spot",
+
+      // 如果未來後端有 spot_id，可以直接接進來
+      placeId:
+        place.placeId ||
+        place.spot_id ||
+        place.spotId ||
+        null,
+
+      // ===== 基本資訊 =====
+      name: place.name,
+
+      lat: place.lat,
+      lng: place.lng,
+
+      address: place.address || "",
+
+      // 新資料結構使用 category
+      category:
+        place.category ||
+        place.type ||
+        "景點",
+
+      // 保留 type，避免目前其他元件還在使用
+      type:
+        place.type ||
+        place.category ||
+        "景點",
+
+      // ===== 行程時間 =====
+      startTime: place.startTime || "",
+      endTime: place.endTime || "",
+
+      // ===== 舊欄位 / 相容資料 =====
+      stayTime: place.stayTime || "1~2 小時",
+
+      activeTime:
+        place.activeTime ||
+        "08:00~17:00",
+
+      // ===== 其他資訊 =====
+      rating: place.rating,
+      cost: place.cost,
+
+      image: place.image || "",
+
+      description:
+        place.description ||
+        "推薦旅遊景點",
+    };
+  };
+
+  // =========================================================
+  // 點擊搜尋結果
+  // =========================================================
   const addSearchPlace = async (spot) => {
     try {
       // ===== 尚未建立 trip =====
@@ -152,20 +221,38 @@ function Sidebar({
         return;
       }
 
-      // ===== 重新加入 Sidebar =====
+      // ===== 加入 Sidebar 的推薦景點 =====
       const formattedPlace = {
         name: spot.name,
+
         address: spot.location,
+
         lat: spot.lat,
         lng: spot.lng,
+
         type: spot.category,
+        category: spot.category,
+
         image: spot.image,
+
         stayTime: "1~2 小時",
+
         activeTime:
           spot.open_time && spot.close_time
             ? `${spot.open_time} ~ ${spot.close_time}`
             : "08:00~17:00",
+
         description: "推薦旅遊景點",
+
+        rating: spot.rating,
+        cost: spot.cost,
+
+        // 如果搜尋 API 未來提供 spot_id，
+        // 這裡可以直接保留
+        placeId:
+          spot.place_id ||
+          spot.spot_id ||
+          null,
       };
 
       setPlaces((prev) => {
@@ -178,20 +265,21 @@ function Sidebar({
         return [...prev, formattedPlace];
       });
 
+      // 清除搜尋
       setSearchKeyword("");
       setSearchResults([]);
       setShowDropdown(false);
       setSelectedIndex(-1);
-
     } catch (err) {
       console.error(err);
     }
   };
 
-  //刪除推薦景點
+  // =========================================================
+  // 刪除推薦景點
+  // =========================================================
   const removeSidebarPlace = async (place) => {
     try {
-
       const token = localStorage.getItem("token");
 
       await fetch(
@@ -207,18 +295,20 @@ function Sidebar({
 
       // ===== 更新前端 =====
       setPlaces((prev) =>
-      prev.filter(
-        (p) =>
-          p.trip_place_id !== place.trip_place_id
-      )
-    );
+        prev.filter(
+          (p) =>
+            p.trip_place_id !==
+            place.trip_place_id
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-  // ===== 鍵盤控制 =====
+  // =========================================================
+  // 鍵盤控制
+  // =========================================================
   const handleKeyDown = (e) => {
     if (!showDropdown) return;
 
@@ -249,30 +339,46 @@ function Sidebar({
       e.preventDefault();
 
       if (selectedIndex >= 0) {
-        addSearchPlace(searchResults[selectedIndex]);
+        addSearchPlace(
+          searchResults[selectedIndex]
+        );
       }
     }
   };
 
-  // ===== 加入指定天 =====
+  // =========================================================
+  // 加入指定天
+  // =========================================================
   const addToDay = (place, dayNumber) => {
+    // 建立新的 itinerary item
+    const newItem =
+      createItineraryItem(place);
+
     setItinerary((prev) =>
       prev.map((dayObj) =>
         dayObj.day === dayNumber
           ? {
               ...dayObj,
-              spots: [...dayObj.spots, place],
+
+              // 新資料結構
+              items: [
+                ...(dayObj.items || []),
+                newItem,
+              ],
             }
           : dayObj
       )
     );
 
-    setSelectedPlace(place);
+    // 選取景點
+    setSelectedPlace(newItem);
     setSelectedDay(dayNumber);
-    setActivePlaceName(place.name);
+    setActivePlaceName(newItem.name);
   };
 
-  // ===== 展開卡片 =====
+  // =========================================================
+  // 展開卡片
+  // =========================================================
   const toggleExpand = (place) => {
     setSelectedPlace(place);
     setSelectedDay(null);
@@ -289,13 +395,14 @@ function Sidebar({
     <div className="sidebar">
       <h2>推薦景點</h2>
 
-      {/* ===== 搜尋框 ===== */}
+      {/* =====================================================
+          搜尋框
+      ===================================================== */}
       <div
         className="sidebar-search-wrapper"
         ref={searchRef}
       >
         <div className="search-input-wrapper">
-
           <input
             type="text"
             placeholder="搜尋景點..."
@@ -303,9 +410,7 @@ function Sidebar({
             onChange={(e) =>
               handleSearch(e.target.value)
             }
-
             onFocus={() => {
-
               if (
                 searchResults.length > 0 ||
                 searchKeyword.trim()
@@ -313,13 +418,11 @@ function Sidebar({
                 setShowDropdown(true);
               }
             }}
-
             onKeyDown={handleKeyDown}
-
             className="sidebar-search-input"
           />
 
-          {/* ===== 清除按鈕 ===== */}
+          {/* 清除按鈕 */}
           {searchKeyword && (
             <button
               className="clear-search-btn"
@@ -328,13 +431,14 @@ function Sidebar({
               ✕
             </button>
           )}
-
         </div>
 
-        {/* ===== Dropdown ===== */}
+        {/* =================================================
+            搜尋 Dropdown
+        ================================================= */}
         {showDropdown && (
           <div className="search-dropdown">
-            {/* ===== Loading ===== */}
+            {/* Loading */}
             {loading && (
               <div className="search-loading">
                 <div className="search-spinner"></div>
@@ -342,7 +446,7 @@ function Sidebar({
               </div>
             )}
 
-            {/* ===== 無結果 ===== */}
+            {/* 無結果 */}
             {!loading &&
               searchKeyword.trim() &&
               searchResults.length === 0 && (
@@ -351,43 +455,51 @@ function Sidebar({
                 </div>
               )}
 
-            {/* ===== 搜尋結果 ===== */}
+            {/* 搜尋結果 */}
             {!loading &&
-              searchResults.map((spot, index) => (
-                <div
-                  key={index}
-                  className={`search-dropdown-item ${
-                    selectedIndex === index
-                      ? "active-search-item"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    addSearchPlace(spot)
-                  }
-                >
-                  <img
-                    src={
-                      spot.image ||
-                      "https://via.placeholder.com/60x60"
+              searchResults.map(
+                (spot, index) => (
+                  <div
+                    key={
+                      spot.spot_id ||
+                      spot.place_id ||
+                      index
                     }
-                    alt={spot.name}
-                    onError={(e) => {
-                      e.target.src =
-                        "https://via.placeholder.com/60x60";
-                    }}
-                  />
+                    className={`search-dropdown-item ${
+                      selectedIndex === index
+                        ? "active-search-item"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      addSearchPlace(spot)
+                    }
+                  >
+                    <img
+                      src={
+                        spot.image ||
+                        "https://via.placeholder.com/60x60"
+                      }
+                      alt={spot.name}
+                      onError={(e) => {
+                        e.target.src =
+                          "https://via.placeholder.com/60x60";
+                      }}
+                    />
 
-                  <div>
-                    <h4>{spot.name}</h4>
-                    <p>{spot.location}</p>
+                    <div>
+                      <h4>{spot.name}</h4>
+                      <p>{spot.location}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
           </div>
         )}
       </div>
 
-      {/* ===== 景點卡片 ===== */}
+      {/* =====================================================
+          景點卡片
+      ===================================================== */}
       {places.map((place, index) => {
         const isExpanded =
           expandedPlaceName === place.name;
@@ -397,45 +509,60 @@ function Sidebar({
 
         return (
           <div
-            key={index}
+            key={
+              place.trip_place_id ||
+              `${place.name}-${index}`
+            }
             className={`place-row-wrapper ${
-              isActive ? "active-place" : ""
+              isActive
+                ? "active-place"
+                : ""
             }`}
           >
-            
+            <div
+              className="place-row-main"
+              onClick={() =>
+                toggleExpand(place)
+              }
+            >
+              <button
+                className="delete-sidebar-place-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
 
-              <div
-                className="place-row-main"
-                onClick={() => toggleExpand(place)}
+                  removeSidebarPlace(
+                    place
+                  );
+                }}
               >
-                <button
-                  className="delete-sidebar-place-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
+                ✕
+              </button>
 
-                    removeSidebarPlace(place);
-                  }}
-                >
-                  ✕
-                </button>
+              <div className="place-row-text">
+                <h4>{place.name}</h4>
 
-              
-                <div className="place-row-text">
-                  <h4>{place.name}</h4>
+                <p>
+                  {place.category ||
+                    place.type ||
+                    "景點"}
+                </p>
 
-                  <p>{place.type || "景點"}</p>
-
-                  <span>
-                    {place.stayTime || "1~2 小時"}
-                  </span>
-                </div>
-
-                <div className="place-expand-indicator">
-                  {isExpanded ? "▲" : "▼"}
-                </div>
+                <span>
+                  {place.stayTime ||
+                    "1~2 小時"}
+                </span>
               </div>
 
-            {/* ===== 展開資訊 ===== */}
+              <div className="place-expand-indicator">
+                {isExpanded
+                  ? "▲"
+                  : "▼"}
+              </div>
+            </div>
+
+            {/* =================================================
+                展開資訊
+            ================================================= */}
             {isExpanded && (
               <div className="place-detail-panel-bottom">
                 <img
@@ -452,43 +579,65 @@ function Sidebar({
                   <h4>{place.name}</h4>
 
                   <p>
-                    <strong>地址：</strong>
-                    {place.address || "尚未提供"}
+                    <strong>
+                      地址：
+                    </strong>
+                    {place.address ||
+                      "尚未提供"}
                   </p>
 
                   <p>
-                    <strong>類型：</strong>
-                    {place.type || "景點"}
+                    <strong>
+                      類型：
+                    </strong>
+                    {place.category ||
+                      place.type ||
+                      "景點"}
                   </p>
 
                   <p>
-                    <strong>建議停留：</strong>
-                    {place.stayTime || "1~2 小時"}
+                    <strong>
+                      建議停留：
+                    </strong>
+                    {place.stayTime ||
+                      "1~2 小時"}
                   </p>
 
                   <p>
-                    <strong>營業時間：</strong>
-                    {place.acitiveTime ||
+                    <strong>
+                      營業時間：
+                    </strong>
+                    {place.activeTime ||
                       "08:00~17:00"}
                   </p>
 
                   <p className="place-detail-desc">
-                    <strong>簡介：</strong>
+                    <strong>
+                      簡介：
+                    </strong>
                     {place.description ||
                       "這是值得安排進行程的推薦景點。"}
                   </p>
                 </div>
 
-                {/* ===== 加入天數 ===== */}
+                {/* =================================================
+                    加入天數
+                ================================================= */}
                 <div className="place-action-row">
                   <select
                     defaultValue=""
                     onChange={(e) => {
-                      if (!e.target.value) return;
+                      if (
+                        !e.target.value
+                      ) {
+                        return;
+                      }
 
                       addToDay(
                         place,
-                        Number(e.target.value)
+                        Number(
+                          e.target.value
+                        )
                       );
 
                       e.target.value = "";
@@ -498,14 +647,21 @@ function Sidebar({
                       加入行程...
                     </option>
 
-                    {itinerary.map((dayObj) => (
-                      <option
-                        key={dayObj.day}
-                        value={dayObj.day}
-                      >
-                        Day {dayObj.day}
-                      </option>
-                    ))}
+                    {itinerary.map(
+                      (dayObj) => (
+                        <option
+                          key={
+                            dayObj.day
+                          }
+                          value={
+                            dayObj.day
+                          }
+                        >
+                          Day{" "}
+                          {dayObj.day}
+                        </option>
+                      )
+                    )}
                   </select>
                 </div>
               </div>

@@ -71,6 +71,12 @@ CREATE TABLE IF NOT EXISTS Itinerary_Spots (
 
     stay_time INTEGER,
 
+    transport_mode TEXT DEFAULT '',
+    transport_duration TEXT DEFAULT '',
+    transport_distance TEXT DEFAULT '',
+    transport_note TEXT DEFAULT '',
+    transport_steps TEXT DEFAULT ''
+
     FOREIGN KEY(itinerary_id)
         REFERENCES Itineraries(itinerary_id),
 
