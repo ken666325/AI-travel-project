@@ -405,8 +405,8 @@ function Map({
         ================================================= */}
 
         <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution="&copy; OpenStreetMap France | &copy; OpenStreetMap contributors" //'© OpenStreetMap France | © OpenStreetMap contributors' //"&copy; OpenStreetMap contributors"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"  //https://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png
         />
 
         {/* =================================================
